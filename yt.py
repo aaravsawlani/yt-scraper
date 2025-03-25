@@ -39,25 +39,35 @@ def search_youtube(keyword, max_results=10):
     
 # 📜 Step 2: Fetch transcript for a given video ID
 def fetch_transcript(video_id):
+    print(f"🔍 Attempting to fetch transcript for video {video_id}")
+    
+    # Try direct method first
     try:
-        print(f"🔍 Attempting to fetch transcript for video {video_id}")
-        transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
-        print(f"📝 Available transcripts for {video_id}:")
-        for transcript in transcript_list:
-            print(f"  - Language: {transcript.language_code}, Type: {'Auto-generated' if transcript.is_generated else 'Manual'}")
-        
-        # Get English transcript
-        transcript = transcript_list.find_transcript(['en'])
-        text = " ".join([entry["text"] for entry in transcript.fetch()])
-        print(f"✅ Successfully fetched English transcript for {video_id}")
+        transcript = YouTubeTranscriptApi.get_transcript(video_id)
+        text = " ".join([entry["text"] for entry in transcript])
+        print(f"✅ Successfully fetched transcript using direct method for {video_id}")
         return text
     except Exception as e:
-        error_type = type(e).__name__
-        print(f"❌ Error fetching transcript for {video_id}")
-        print(f"  Error type: {error_type}")
-        print(f"  Error message: {str(e)}")
-        print(f"  Video URL: https://www.youtube.com/watch?v={video_id}")
-        return None
+        print(f"⚠️ Direct method failed for {video_id}, trying fallback method...")
+        
+        # Fallback to list_transcripts method
+        try:
+            transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
+            print(f"📝 Available transcripts for {video_id}:")
+            for transcript in transcript_list:
+                print(f"  - Language: {transcript.language_code}, Type: {'Auto-generated' if transcript.is_generated else 'Manual'}")
+            
+            transcript = transcript_list.find_transcript(['en'])
+            text = " ".join([entry["text"] for entry in transcript.fetch()])
+            print(f"✅ Successfully fetched English transcript using fallback method for {video_id}")
+            return text
+        except Exception as e2:
+            error_type = type(e2).__name__
+            print(f"❌ Error fetching transcript for {video_id}")
+            print(f"  Error type: {error_type}")
+            print(f"  Error message: {str(e2)}")
+            print(f"  Video URL: https://www.youtube.com/watch?v={video_id}")
+            return None
 
 def analyze_transcript(transcript):
     try:
