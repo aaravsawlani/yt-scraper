@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 import requests
 from youtube_transcript_api import YouTubeTranscriptApi
+from youtube_transcript_api.proxies import WebshareProxyConfig
 from openai import OpenAI
 from datetime import datetime, timedelta
 
@@ -9,12 +10,28 @@ load_dotenv("secrets.env")
 # 🔑 API KEYS (Replace with your actual API keys)
 YOUTUBE_API_KEY = os.getenv("YT_API_KEY")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+WEBSHARE_USER = os.getenv("WEBSHARE_USER")
+WEBSHARE_PASS = os.getenv("WEBSHARE_PASS")
+
 # Initialize OpenAI client
 client = OpenAI(
     api_key=OPENAI_API_KEY,
     default_headers={"Content-Type": "application/json"},
     timeout=60.0
 )
+
+# Initialize YouTube Transcript API with proxy
+if WEBSHARE_USER and WEBSHARE_PASS:
+    print("🌐 Initializing YouTube Transcript API with Webshare proxy...")
+    ytt_api = YouTubeTranscriptApi(
+        proxy_config=WebshareProxyConfig(
+            proxy_username=WEBSHARE_USER,
+            proxy_password=WEBSHARE_PASS,
+        )
+    )
+else:
+    print("⚠️ No Webshare proxy credentials found. Transcript fetching may fail in cloud environments.")
+    ytt_api = YouTubeTranscriptApi()
 
 # 🔍 Step 1: Search YouTube for videos based on a keyword
 def search_youtube(keyword, max_results=10):
