@@ -3,7 +3,11 @@
     "builds": [
         {
             "src": "app.py",
-            "use": "@vercel/python"
+            "use": "@vercel/python",
+            "config": {
+                "maxLambdaSize": "15mb",
+                "runtime": "python3.9"
+            }
         },
         {
             "src": "static/**",
@@ -21,7 +25,8 @@
         }
     ],
     "env": {
-        "FLASK_ENV": "production"
+        "FLASK_ENV": "production",
+        "PYTHONPATH": "/var/task"
     }
 }
   
