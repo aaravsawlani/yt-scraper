@@ -28,41 +28,46 @@
             border-right: 1px solid var(--border-color);
             height: 100vh;
             position: fixed;
-            width: 300px;
-            padding: 1.5rem;
+            width: 280px;
+            padding: 20px;
             overflow-y: auto;
         }
 
         .main-content {
-            margin-left: 300px;
-            padding: 2rem;
+            margin-left: 280px;
+            padding: 20px 32px;
+            width: calc(100% - 280px);
+            max-width: none;
         }
 
         .form-section {
             background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            padding: 1.5rem;
-            margin-bottom: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            padding: 24px;
+            margin-bottom: 32px;
         }
 
         .form-control, .form-select {
-            border-radius: 8px;
+            border-radius: 6px;
             border-color: var(--border-color);
-            padding: 0.75rem 1rem;
+            padding: 8px 12px;
+            height: 40px;
+            font-size: 0.95rem;
         }
 
-        .form-control:focus, .form-select:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+        .form-group {
+            margin-bottom: 24px;
         }
 
         .btn-primary {
             background-color: var(--primary-color);
             border-color: var(--primary-color);
             border-radius: 8px;
-            padding: 0.75rem 1.5rem;
+            padding: 0 24px;
             font-weight: 500;
+            height: 44px;
+            font-size: 0.95rem;
         }
 
         .btn-primary:hover {
@@ -73,9 +78,9 @@
         .result-card {
             background-color: white;
             border: 1px solid var(--border-color);
-            border-radius: 12px;
-            margin-bottom: 1rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
             transition: all 0.2s ease;
         }
 
@@ -90,25 +95,36 @@
             font-weight: 500;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding: 1rem 1.5rem;
+            padding: 12px 20px;
             border-bottom: 1px solid var(--border-color);
         }
 
-        .summary-section {
-            padding: 1.5rem;
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            line-height: 1.6;
+        .video-title-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
         }
 
         .youtube-link {
             color: var(--primary-color);
             transition: color 0.2s;
+            font-size: 1.5rem;
+            margin-left: 16px;
+            display: flex;
+            align-items: center;
         }
 
         .youtube-link:hover {
             color: var(--primary-hover);
+        }
+
+        .summary-section {
+            padding: 16px 20px;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            display: none;  /* Hide summaries by default */
         }
 
         .history-sidebar {
@@ -116,7 +132,7 @@
         }
 
         .history-item {
-            padding: 1rem 1.5rem;
+            padding: 12px 20px;
             border-bottom: 1px solid var(--border-color);
             cursor: pointer;
             transition: background-color 0.2s;
@@ -146,12 +162,35 @@
             color: var(--text-secondary);
         }
 
+        .form-button-row {
+            margin-top: 32px;
+        }
+
         #final-summary {
             background-color: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            padding: 24px;
+            margin-top: 16px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .overall-analysis-title {
+            font-size: 1.75rem;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .video-counter {
+            display: inline-flex;
+            align-items: center;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-left: 12px;
         }
 
         .toggle-summary {
@@ -173,15 +212,32 @@
             color: var(--text-secondary);
             margin-bottom: 0.5rem;
         }
+
+        /* Remove any potential Bootstrap padding */
+        .container-fluid {
+            padding: 0 !important;
+            max-width: none !important;
+        }
+
+        .row {
+            margin: 0 !important;
+            width: 100% !important;
+        }
+
+        .col-md-9, .col-auto {
+            padding: 0 !important;
+            width: auto !important;
+            flex: none !important;
+        }
     </style>
 </head>
 <body>
-    <div class="container-fluid p-0">
-        <div class="row g-0">
+    <div class="container-fluid">
+        <div class="row">
             <!-- Sidebar -->
-            <div class="col-md-3">
+            <div class="col-auto p-0">
                 <div class="sidebar">
-                    <h3 class="mb-4">Search History</h3>
+                    <h3 class="mb-3">Search History</h3>
                     <div id="history-list">
                         {% for search in history %}
                         <div class="history-item" data-search-id="{{ search.id }}">
@@ -197,13 +253,13 @@
             </div>
 
             <!-- Main Content -->
-            <div class="col-md-9">
+            <div class="col p-0">
                 <div class="main-content">
                     <h1 class="mb-4">YouTube Video Analyzer</h1>
                     
                     <div class="form-section">
-                        <form id="searchForm" class="mb-4">
-                            <div class="row g-3">
+                        <form id="searchForm">
+                            <div class="row g-4 mb-4">
                                 <div class="col-sm-4">
                                     <label for="keyword" class="form-label">Search Keyword</label>
                                     <input type="text" class="form-control" id="keyword" name="keyword" placeholder="Enter search keyword" required>
@@ -226,13 +282,11 @@
                                     <input type="number" class="form-control" id="max_age" name="max_age" value="500" min="1">
                                 </div>
                             </div>
-                            <div class="row mt-3">
-                                <div class="col">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="bi bi-search me-2"></i>
-                                        Analyze Videos
-                                    </button>
-                                </div>
+                            <div class="form-button-row">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-search me-2"></i>
+                                    Analyze Videos
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -247,7 +301,12 @@
                     <div id="final-summary" style="display: none;" class="mb-4"></div>
                     
                     <div id="live-results" class="mt-4">
-                        <h4 class="mb-3">Video Summaries</h4>
+                        <div class="d-flex align-items-center mb-3">
+                            <h4 class="mb-0">Video Summaries</h4>
+                            <div id="video-counter" class="video-counter" style="display: none;">
+                                <span id="processed-count">0</span>&nbsp;videos processed
+                            </div>
+                        </div>
                         <div class="progress mb-3" style="display: none;">
                             <div class="progress-bar" role="progressbar" style="width: 0%"></div>
                         </div>
@@ -278,6 +337,7 @@
 
         // Track processed videos to avoid duplicates
         const processedVideos = new Set();
+        let processedCount = 0;
         
         // Setup SSE connection for live updates
         function setupEventSource() {
@@ -302,14 +362,14 @@
                     const data = JSON.parse(event.data);
                     
                     if (data.type === 'video_complete') {
-                        // Check if we've already processed this video
-                        if (processedVideos.has(data.video_id)) {
-                            console.log('Skipping duplicate video:', data.title);
-                            return;
-                        }
-                        
                         console.log('Processing video:', data.title);
-                        processedVideos.add(data.video_id);
+                        
+                        // Update counter
+                        processedCount++;
+                        const counter = document.getElementById('video-counter');
+                        const count = document.getElementById('processed-count');
+                        counter.style.display = 'inline-flex';
+                        count.textContent = processedCount;
                         
                         const liveResultsContent = document.getElementById('live-results-content');
                         const card = document.createElement('div');
@@ -366,13 +426,21 @@
         function displaySearchResults(data) {
             const liveResultsContent = document.getElementById('live-results-content');
             const finalSummary = document.getElementById('final-summary');
+            const existingTitle = document.querySelector('.overall-analysis-title');
             
-            // Clear previous results
-            liveResultsContent.innerHTML = '';
-            processedVideos.clear();
+            // Clear previous results only for new searches
+            if (!data.is_history) {
+                liveResultsContent.innerHTML = '';
+                processedCount = 0;
+                document.getElementById('video-counter').style.display = 'none';
+            }
+            
+            // Remove any existing overall analysis title
+            if (existingTitle) {
+                existingTitle.remove();
+            }
             
             if (data.videos && Array.isArray(data.videos)) {
-                // Display videos
                 data.videos.forEach(video => {
                     const card = document.createElement('div');
                     card.className = 'card result-card';
@@ -420,11 +488,24 @@
 
             // Display final summary
             if (data.final_summary) {
-                finalSummary.innerHTML = `
-                    <h3>Overall Analysis</h3>
-                    ${formatMarkdown(data.final_summary)}
+                // Create container for the entire summary section
+                const summaryContainer = document.createElement('div');
+                summaryContainer.innerHTML = `
+                    <h2 class="overall-analysis-title">Overall Analysis</h2>
+                    <div id="final-summary" class="mb-4">
+                        ${formatMarkdown(data.final_summary)}
+                    </div>
                 `;
-                finalSummary.style.display = 'block';
+                
+                // Remove old summary if it exists
+                const oldSummary = document.getElementById('final-summary');
+                if (oldSummary) {
+                    oldSummary.remove();
+                }
+                
+                // Insert the new summary container at the correct position
+                const liveResults = document.getElementById('live-results');
+                liveResults.parentNode.insertBefore(summaryContainer, liveResults);
             }
         }
 
@@ -454,8 +535,9 @@
         document.getElementById('searchForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // Clear the processed videos set for new search
-            processedVideos.clear();
+            // Reset the processed count for new searches
+            processedCount = 0;
+            document.getElementById('video-counter').style.display = 'none';
             
             const form = e.target;
             const liveResultsContent = document.getElementById('live-results-content');
@@ -463,7 +545,6 @@
             const finalSummary = document.getElementById('final-summary');
             const loading = document.querySelector('.loading');
             const progress = document.querySelector('.progress');
-            const progressBar = document.querySelector('.progress-bar');
             
             // Clear previous results
             liveResultsContent.innerHTML = '';

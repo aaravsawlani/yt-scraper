@@ -68,7 +68,7 @@ def analyze_transcript(transcript):
                     3. Recommended actions
                     
                     Format as:
-                    QUICK_SUMMARY: [one sentence]
+                    QUICK SUMMARY: [one sentence]
                     INSIGHTS: [bullet points]
                     ACTIONS: [bullet points]
                     
