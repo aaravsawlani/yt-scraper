@@ -169,7 +169,7 @@
         #final-summary {
             background-color: white;
             border-radius: 8px;
-            padding: 24px;
+            padding: 32px;
             margin-top: 16px;
             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
@@ -228,6 +228,50 @@
             padding: 0 !important;
             width: auto !important;
             flex: none !important;
+        }
+
+        .summary-section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .summary-section-title i {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        .summary-content {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .summary-content:last-child {
+            margin-bottom: 0;
+        }
+
+        .summary-content ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .summary-content li {
+            margin-bottom: 8px;
+        }
+
+        .summary-content p {
+            margin-bottom: 12px;
+        }
+
+        .summary-divider {
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 24px 0;
         }
     </style>
 </head>
@@ -321,16 +365,19 @@
         function formatMarkdown(text) {
             // First, handle headers (must be done before other replacements)
             text = text
-                .replace(/^### (.*?)$/gm, '<h3>$1</h3>')          // H3
-                .replace(/^## (.*?)$/gm, '<h2>$1</h2>')           // H2
-                .replace(/^# (.*?)$/gm, '<h1>$1</h1>')            // H1
+                .replace(/^### (.*?)$/gm, '<div class="summary-section-title"><i class="bi bi-bookmark-star"></i>$1</div>')  // H3
+                .replace(/^## (.*?)$/gm, '<div class="summary-section-title"><i class="bi bi-stars"></i>$1</div>')          // H2
+                .replace(/^# (.*?)$/gm, '<div class="summary-section-title"><i class="bi bi-star"></i>$1</div>')            // H1
                 .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
                 .replace(/\*(.*?)\*/g, '<em>$1</em>')             // Italic
                 .replace(/\n\s*-\s*/g, '<li>')                    // List items
-                .replace(/\n\n/g, '</ul><ul>');                   // Split sections
+                .replace(/\n\n/g, '</ul><div class="summary-divider"></div><ul>');  // Split sections with divider
 
             // Wrap any remaining content in paragraphs if it's not already in a block element
-            text = text.replace(/^(?!<[hou][1-6l]>).*$/gm, '<p>$&</p>');
+            text = text.replace(/^(?!<[dhou][1-6l]>).*$/gm, '<p>$&</p>');
+            
+            // Wrap all content between headers in summary-content div
+            text = text.replace(/<\/div>\s*(.*?)(?=<div class="summary-section-title">|$)/gs, '</div><div class="summary-content">$1</div>');
             
             return text;
         }
@@ -493,7 +540,9 @@
                 summaryContainer.innerHTML = `
                     <h2 class="overall-analysis-title">Overall Analysis</h2>
                     <div id="final-summary" class="mb-4">
-                        ${formatMarkdown(data.final_summary)}
+                        <div class="summary-content">
+                            ${formatMarkdown(data.final_summary)}
+                        </div>
                     </div>
                 `;
                 
