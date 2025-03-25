@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, send_file
+from flask import Flask, render_template, request, jsonify, send_file, send_from_directory
 import os
 from pathlib import Path
 import yt
@@ -8,6 +8,9 @@ app = Flask(__name__)
 
 # Get the Downloads folder path
 downloads_path = str(Path.home() / "Downloads")
+
+# Ensure the downloads directory exists
+os.makedirs(downloads_path, exist_ok=True)
 
 @app.route('/')
 def index():
@@ -71,6 +74,11 @@ def download(filename):
         return send_file(file_path, as_attachment=True)
     except Exception as e:
         return jsonify({'error': str(e)}), 404
+
+# Add static file handling for Vercel
+@app.route('/<path:path>')
+def static_proxy(path):
+    return send_from_directory(app.static_folder, path)
 
 if __name__ == '__main__':
     app.run(debug=True) 
