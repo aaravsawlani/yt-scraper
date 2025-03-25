@@ -43,6 +43,29 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Show results section
             resultsDiv.classList.remove('d-none');
+
+            if (data.videos && Array.isArray(data.videos)) {
+                // Display videos
+                data.videos.forEach(video => {
+                    const videoCard = document.createElement('div');
+                    videoCard.className = 'card video-card';
+                    
+                    videoCard.innerHTML = `
+                        <div class="card-header">
+                            <a href="https://www.youtube.com/watch?v=${video.video_id}" 
+                               target="_blank" 
+                               class="video-title">
+                                ${escapeHtml(video.title)}
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <div class="summary-text">${escapeHtml(video.summary)}</div>
+                        </div>
+                    `;
+                    
+                    videoResultsDiv.appendChild(videoCard);
+                });
+            }
         } catch (error) {
             errorDiv.textContent = error.message;
             errorDiv.classList.remove('d-none');

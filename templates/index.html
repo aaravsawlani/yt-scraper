@@ -6,147 +6,458 @@
     <title>YouTube Video Analyzer</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #6366F1;
+            --primary-hover: #4F46E5;
+            --bg-color: #F9FAFB;
+            --text-primary: #111827;
+            --text-secondary: #6B7280;
+            --border-color: #E5E7EB;
+        }
+
         body { 
-            padding: 20px; 
-            background-color: #f8f9fa;
+            background-color: var(--bg-color);
+            font-family: 'Inter', sans-serif;
+            color: var(--text-primary);
         }
-        .loading { display: none; }
-        .result-card {
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+        .sidebar {
             background-color: white;
+            border-right: 1px solid var(--border-color);
+            height: 100vh;
+            position: fixed;
+            width: 300px;
+            padding: 1.5rem;
+            overflow-y: auto;
         }
+
+        .main-content {
+            margin-left: 300px;
+            padding: 2rem;
+        }
+
+        .form-section {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-control, .form-select {
+            border-radius: 8px;
+            border-color: var(--border-color);
+            padding: 0.75rem 1rem;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            border-color: var(--primary-hover);
+        }
+
+        .result-card {
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+        }
+
+        .result-card:hover {
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
         .video-title {
-            color: #c4302b;
+            color: var(--text-primary);
             text-decoration: none;
+            font-weight: 500;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
         }
-        .video-title:hover {
-            text-decoration: none;
-            color: #a52521;
-        }
+
         .summary-section {
-            display: none;
-            padding: 15px;
-            background-color: #f8f9fa;
-            border-top: 1px solid #dee2e6;
+            padding: 1.5rem;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
         }
-        #final-summary {
-            background-color: white;
-            padding: 20px;
-            border-radius: 5px;
-            margin-top: 30px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+        .youtube-link {
+            color: var(--primary-color);
+            transition: color 0.2s;
         }
-        .summary-section h6 {
-            color: #6c757d;
-            margin-top: 15px;
-            margin-bottom: 10px;
+
+        .youtube-link:hover {
+            color: var(--primary-hover);
         }
-        .summary-section ul {
-            padding-left: 20px;
+
+        .history-sidebar {
+            padding: 0;
         }
-        .toggle-summary {
+
+        .history-item {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
             cursor: pointer;
-            padding: 5px;
-            border-radius: 4px;
             transition: background-color 0.2s;
         }
-        .toggle-summary:hover {
-            background-color: #f8f9fa;
+
+        .history-item:hover {
+            background-color: var(--bg-color);
         }
-        .live-summary {
-            padding: 10px;
-            margin: 10px 0;
-            background-color: #e9ecef;
-            border-radius: 5px;
-            display: none;
+
+        .history-item.active {
+            background-color: rgba(99, 102, 241, 0.1);
+            border-left: 3px solid var(--primary-color);
         }
-        .form-section {
+
+        .history-keyword {
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .history-timestamp {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .loading {
+            color: var(--text-secondary);
+        }
+
+        #final-summary {
             background-color: white;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .toggle-summary {
+            color: var(--text-secondary);
+            transition: transform 0.2s;
+        }
+
+        .toggle-summary:hover {
+            color: var(--primary-color);
+        }
+
+        h1, h2, h3, h4 {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1 class="mb-4">YouTube Video Analyzer</h1>
-        
-        <div class="form-section">
-            <form id="searchForm" class="mb-4">
-                <div class="row g-3">
-                    <div class="col-sm-4">
-                        <label for="keyword" class="form-label">Search Keyword</label>
-                        <input type="text" class="form-control" id="keyword" name="keyword" placeholder="Enter search keyword" required>
-                    </div>
-                    <div class="col-sm-2">
-                        <label for="max_results" class="form-label">Max Results</label>
-                        <input type="number" class="form-control" id="max_results" name="max_results" value="10" min="1" max="50">
-                    </div>
-                    <div class="col-sm-3">
-                        <label for="order" class="form-label">Sort By</label>
-                        <select class="form-select" id="order" name="order">
-                            <option value="relevance">Relevance</option>
-                            <option value="date">Upload Date</option>
-                            <option value="viewCount">View Count</option>
-                            <option value="rating">Rating</option>
-                        </select>
-                    </div>
-                    <div class="col-sm-3">
-                        <label for="max_age" class="form-label">Max Age (days)</label>
-                        <input type="number" class="form-control" id="max_age" name="max_age" value="500" min="1">
+    <div class="container-fluid p-0">
+        <div class="row g-0">
+            <!-- Sidebar -->
+            <div class="col-md-3">
+                <div class="sidebar">
+                    <h3 class="mb-4">Search History</h3>
+                    <div id="history-list">
+                        {% for search in history %}
+                        <div class="history-item" data-search-id="{{ search.id }}">
+                            <div class="history-keyword">{{ search.keyword }}</div>
+                            <div class="history-timestamp">{{ search.timestamp }}</div>
+                            <small class="text-muted">
+                                {{ search.max_results }} videos, sorted by {{ search.order_by }}
+                            </small>
+                        </div>
+                        {% endfor %}
                     </div>
                 </div>
-                <div class="row mt-3">
-                    <div class="col">
-                        <button type="submit" class="btn btn-primary">Analyze Videos</button>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9">
+                <div class="main-content">
+                    <h1 class="mb-4">YouTube Video Analyzer</h1>
+                    
+                    <div class="form-section">
+                        <form id="searchForm" class="mb-4">
+                            <div class="row g-3">
+                                <div class="col-sm-4">
+                                    <label for="keyword" class="form-label">Search Keyword</label>
+                                    <input type="text" class="form-control" id="keyword" name="keyword" placeholder="Enter search keyword" required>
+                                </div>
+                                <div class="col-sm-2">
+                                    <label for="max_results" class="form-label">Max Results</label>
+                                    <input type="number" class="form-control" id="max_results" name="max_results" value="10" min="1" max="50">
+                                </div>
+                                <div class="col-sm-3">
+                                    <label for="order" class="form-label">Sort By</label>
+                                    <select class="form-select" id="order" name="order">
+                                        <option value="relevance">Relevance</option>
+                                        <option value="date">Upload Date</option>
+                                        <option value="viewCount">View Count</option>
+                                        <option value="rating">Rating</option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-3">
+                                    <label for="max_age" class="form-label">Max Age (days)</label>
+                                    <input type="number" class="form-control" id="max_age" name="max_age" value="500" min="1">
+                                </div>
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-search me-2"></i>
+                                        Analyze Videos
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="loading text-center" style="display: none;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Analyzing videos... This may take a few minutes.</p>
+                    </div>
+
+                    <div id="final-summary" style="display: none;" class="mb-4"></div>
+                    
+                    <div id="live-results" class="mt-4">
+                        <h4 class="mb-3">Video Summaries</h4>
+                        <div class="progress mb-3" style="display: none;">
+                            <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                        </div>
+                        <div id="live-results-content"></div>
                     </div>
                 </div>
-            </form>
-        </div>
-
-        <div class="loading text-center">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
             </div>
-            <p class="mt-2">Analyzing videos... This may take a few minutes.</p>
         </div>
-
-        <div id="final-summary" style="display: none;" class="mb-4"></div>
-        <div id="live-results" class="mt-4">
-            <h4>Live Results</h4>
-            <div class="progress mb-3" style="display: none;">
-                <div class="progress-bar" role="progressbar" style="width: 0%"></div>
-            </div>
-            <div id="live-results-content"></div>
-        </div>
-        <div id="results" class="mt-4"></div>
     </div>
 
     <script>
         function formatMarkdown(text) {
-            return text
-                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')  // Bold
-                .replace(/\*(.*?)\*/g, '<em>$1</em>')              // Italic
-                .replace(/#{4} (.*?)\\n/g, '<h4>$1</h4>')         // H4
-                .replace(/#{3} (.*?)\\n/g, '<h3>$1</h3>')         // H3
-                .replace(/#{2} (.*?)\\n/g, '<h2>$1</h2>')         // H2
-                .replace(/# (.*?)\\n/g, '<h1>$1</h1>')            // H1
+            // First, handle headers (must be done before other replacements)
+            text = text
+                .replace(/^### (.*?)$/gm, '<h3>$1</h3>')          // H3
+                .replace(/^## (.*?)$/gm, '<h2>$1</h2>')           // H2
+                .replace(/^# (.*?)$/gm, '<h1>$1</h1>')            // H1
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')             // Italic
                 .replace(/\n\s*-\s*/g, '<li>')                    // List items
                 .replace(/\n\n/g, '</ul><ul>');                   // Split sections
+
+            // Wrap any remaining content in paragraphs if it's not already in a block element
+            text = text.replace(/^(?!<[hou][1-6l]>).*$/gm, '<p>$&</p>');
+            
+            return text;
         }
+
+        // Track processed videos to avoid duplicates
+        const processedVideos = new Set();
+        
+        // Setup SSE connection for live updates
+        function setupEventSource() {
+            const evtSource = new EventSource('/stream');
+            
+            evtSource.onopen = function() {
+                console.log('SSE connection opened');
+            };
+            
+            evtSource.onerror = function(err) {
+                console.error('SSE connection error:', err);
+                evtSource.close();
+                // Attempt to reconnect after 1 second
+                setTimeout(setupEventSource, 1000);
+            };
+            
+            evtSource.onmessage = function(event) {
+                if (event.data === '') return; // Ignore heartbeat
+                
+                try {
+                    console.log('Received SSE message:', event.data);
+                    const data = JSON.parse(event.data);
+                    
+                    if (data.type === 'video_complete') {
+                        // Check if we've already processed this video
+                        if (processedVideos.has(data.video_id)) {
+                            console.log('Skipping duplicate video:', data.title);
+                            return;
+                        }
+                        
+                        console.log('Processing video:', data.title);
+                        processedVideos.add(data.video_id);
+                        
+                        const liveResultsContent = document.getElementById('live-results-content');
+                        const card = document.createElement('div');
+                        card.className = 'card result-card';
+                        card.innerHTML = `
+                            <div class="card-body">
+                                <div class="video-header">
+                                    <div class="video-title-section">
+                                        <h5 class="card-title mb-0">
+                                            <a class="video-title">
+                                                ${data.title}
+                                                <span class="toggle-summary">
+                                                    <i class="bi bi-chevron-down"></i>
+                                                </span>
+                                            </a>
+                                        </h5>
+                                        <a href="${data.url}" 
+                                           target="_blank" 
+                                           class="youtube-link" 
+                                           title="Watch on YouTube">
+                                            <i class="bi bi-youtube"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="summary-section">
+                                    ${formatMarkdown(data.summary)}
+                                </div>
+                            </div>
+                        `;
+
+                        // Add click handler for toggling summary
+                        const titleEl = card.querySelector('.video-title');
+                        const summaryEl = card.querySelector('.summary-section');
+                        const iconEl = card.querySelector('.bi-chevron-down, .bi-chevron-up');
+                        
+                        titleEl.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            const isVisible = summaryEl.style.display === 'block';
+                            summaryEl.style.display = isVisible ? 'none' : 'block';
+                            iconEl.className = isVisible ? 'bi bi-chevron-down' : 'bi bi-chevron-up';
+                        });
+
+                        liveResultsContent.appendChild(card);
+                        console.log('Added video card to UI:', data.title);
+                    }
+                } catch (error) {
+                    console.error('Error processing SSE message:', error);
+                }
+            };
+
+            return evtSource;
+        }
+
+        function displaySearchResults(data) {
+            const liveResultsContent = document.getElementById('live-results-content');
+            const finalSummary = document.getElementById('final-summary');
+            
+            // Clear previous results
+            liveResultsContent.innerHTML = '';
+            processedVideos.clear();
+            
+            if (data.videos && Array.isArray(data.videos)) {
+                // Display videos
+                data.videos.forEach(video => {
+                    const card = document.createElement('div');
+                    card.className = 'card result-card';
+                    card.innerHTML = `
+                        <div class="card-body">
+                            <div class="video-header">
+                                <div class="video-title-section">
+                                    <h5 class="card-title mb-0">
+                                        <a class="video-title">
+                                            ${video.title}
+                                            <span class="toggle-summary">
+                                                <i class="bi bi-chevron-down"></i>
+                                            </span>
+                                        </a>
+                                    </h5>
+                                    <a href="${video.url}" 
+                                       target="_blank" 
+                                       class="youtube-link" 
+                                       title="Watch on YouTube">
+                                        <i class="bi bi-youtube"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="summary-section">
+                                ${formatMarkdown(video.summary)}
+                            </div>
+                        </div>
+                    `;
+
+                    // Add click handler for toggling summary
+                    const titleEl = card.querySelector('.video-title');
+                    const summaryEl = card.querySelector('.summary-section');
+                    const iconEl = card.querySelector('.bi-chevron-down, .bi-chevron-up');
+                    
+                    titleEl.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const isVisible = summaryEl.style.display === 'block';
+                        summaryEl.style.display = isVisible ? 'none' : 'block';
+                        iconEl.className = isVisible ? 'bi bi-chevron-down' : 'bi bi-chevron-up';
+                    });
+
+                    liveResultsContent.appendChild(card);
+                });
+            }
+
+            // Display final summary
+            if (data.final_summary) {
+                finalSummary.innerHTML = `
+                    <h3>Overall Analysis</h3>
+                    ${formatMarkdown(data.final_summary)}
+                `;
+                finalSummary.style.display = 'block';
+            }
+        }
+
+        // Handle history item clicks
+        document.querySelectorAll('.history-item').forEach(item => {
+            item.addEventListener('click', async () => {
+                // Remove active class from all items
+                document.querySelectorAll('.history-item').forEach(i => i.classList.remove('active'));
+                // Add active class to clicked item
+                item.classList.add('active');
+
+                const searchId = item.dataset.searchId;
+                try {
+                    const response = await fetch(`/history/${searchId}`);
+                    const data = await response.json();
+                    if (response.ok) {
+                        displaySearchResults(data);
+                    } else {
+                        throw new Error(data.error);
+                    }
+                } catch (error) {
+                    console.error('Error loading history:', error);
+                }
+            });
+        });
 
         document.getElementById('searchForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            // Clear the processed videos set for new search
+            processedVideos.clear();
+            
             const form = e.target;
-            const results = document.getElementById('results');
             const liveResultsContent = document.getElementById('live-results-content');
             const liveResults = document.getElementById('live-results');
             const finalSummary = document.getElementById('final-summary');
@@ -155,7 +466,6 @@
             const progressBar = document.querySelector('.progress-bar');
             
             // Clear previous results
-            results.innerHTML = '';
             liveResultsContent.innerHTML = '';
             finalSummary.style.display = 'none';
             loading.style.display = 'block';
@@ -172,65 +482,12 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    // Display final summary first
-                    if (data.final_summary) {
-                        const formattedSummary = formatMarkdown(data.final_summary);
-                        finalSummary.innerHTML = `
-                            <h3>Overall Analysis</h3>
-                            ${formattedSummary}
-                        `;
-                        finalSummary.style.display = 'block';
-                    }
-
-                    // Display individual video results
-                    const totalVideos = data.results.length;
-                    data.results.forEach((result, index) => {
-                        const card = document.createElement('div');
-                        card.className = 'card result-card';
-                        
-                        // Format the summary sections
-                        const summaryText = formatMarkdown(result.summary);
-                        
-                        card.innerHTML = `
-                            <div class="card-body">
-                                <h5 class="card-title">
-                                    <a href="${result.url}" target="_blank" class="video-title">
-                                        ${result.title}
-                                        <span class="toggle-summary">
-                                            <i class="bi bi-chevron-down"></i>
-                                        </span>
-                                    </a>
-                                </h5>
-                                <div class="summary-section">
-                                    ${summaryText}
-                                </div>
-                            </div>
-                        `;
-                        
-                        // Add click handler for toggling summary
-                        const titleEl = card.querySelector('.video-title');
-                        const summaryEl = card.querySelector('.summary-section');
-                        const iconEl = card.querySelector('.bi');
-                        
-                        titleEl.addEventListener('click', (e) => {
-                            e.preventDefault();
-                            const isVisible = summaryEl.style.display === 'block';
-                            summaryEl.style.display = isVisible ? 'none' : 'block';
-                            iconEl.className = isVisible ? 'bi bi-chevron-down' : 'bi bi-chevron-up';
-                        });
-                        
-                        results.appendChild(card);
-
-                        // Update progress
-                        const progress = ((index + 1) / totalVideos) * 100;
-                        progressBar.style.width = `${progress}%`;
-                        progressBar.setAttribute('aria-valuenow', progress);
-                    });
+                    displaySearchResults(data);
                 } else {
                     throw new Error(data.error);
                 }
             } catch (error) {
-                results.innerHTML = `
+                liveResultsContent.innerHTML = `
                     <div class="alert alert-danger" role="alert">
                         Error: ${error.message}
                     </div>
@@ -241,29 +498,15 @@
             }
         });
 
-        // WebSocket or SSE connection for live updates
-        const evtSource = new EventSource('/stream');
-        evtSource.onmessage = function(event) {
-            const data = JSON.parse(event.data);
-            if (data.type === 'video_complete') {
-                const liveResultsContent = document.getElementById('live-results-content');
-                const card = document.createElement('div');
-                card.className = 'card result-card';
-                card.innerHTML = `
-                    <div class="card-body">
-                        <h5 class="card-title">
-                            <a href="https://www.youtube.com/watch?v=${data.video_id}" target="_blank" class="video-title">
-                                ${data.title}
-                            </a>
-                        </h5>
-                        <div class="summary-section" style="display: block;">
-                            ${formatMarkdown(data.summary)}
-                        </div>
-                    </div>
-                `;
-                liveResultsContent.appendChild(card);
+        // Initialize SSE connection
+        let eventSource = setupEventSource();
+
+        // Clean up when the page is unloaded
+        window.addEventListener('beforeunload', () => {
+            if (eventSource) {
+                eventSource.close();
             }
-        };
+        });
     </script>
 </body>
 </html> 

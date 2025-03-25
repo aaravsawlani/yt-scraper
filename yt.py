@@ -56,6 +56,7 @@ def fetch_transcript(video_id):
 
 def analyze_transcript(transcript):
     try:
+        print(f"🤖 Attempting to analyze transcript...")
         completion = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
@@ -76,9 +77,11 @@ def analyze_transcript(transcript):
                 """}
             ]
         )
+        print(f"✅ Successfully analyzed transcript")
         return completion.choices[0].message.content
     except Exception as e:
-        print(f"❌ OpenAI API Error: {e}")
+        print(f"❌ Error analyzing transcript: {type(e).__name__}")
+        print(f"  Error details: {str(e)}")
         return None
 
 def create_final_summary(results):
