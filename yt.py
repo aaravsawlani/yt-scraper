@@ -2,7 +2,6 @@ import os
 from dotenv import load_dotenv
 import requests
 from youtube_transcript_api import YouTubeTranscriptApi
-from youtube_transcript_api.proxies import WebshareProxyConfig
 from openai import OpenAI
 from datetime import datetime, timedelta
 
@@ -10,8 +9,6 @@ load_dotenv("secrets.env")
 # 🔑 API KEYS (Replace with your actual API keys)
 YOUTUBE_API_KEY = os.getenv("YT_API_KEY")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-WEBSHARE_USER = os.getenv("WEBSHARE_USER")
-WEBSHARE_PASS = os.getenv("WEBSHARE_PASS")
 
 # Initialize OpenAI client
 client = OpenAI(
@@ -19,19 +16,6 @@ client = OpenAI(
     default_headers={"Content-Type": "application/json"},
     timeout=60.0
 )
-
-# Initialize YouTube Transcript API with proxy
-if WEBSHARE_USER and WEBSHARE_PASS:
-    print("🌐 Initializing YouTube Transcript API with Webshare proxy...")
-    ytt_api = YouTubeTranscriptApi(
-        proxy_config=WebshareProxyConfig(
-            proxy_username=WEBSHARE_USER,
-            proxy_password=WEBSHARE_PASS,
-        )
-    )
-else:
-    print("⚠️ No Webshare proxy credentials found. Transcript fetching may fail in cloud environments.")
-    ytt_api = YouTubeTranscriptApi()
 
 # 🔍 Step 1: Search YouTube for videos based on a keyword
 def search_youtube(keyword, max_results=10):
@@ -57,34 +41,18 @@ def search_youtube(keyword, max_results=10):
 # 📜 Step 2: Fetch transcript for a given video ID
 def fetch_transcript(video_id):
     print(f"🔍 Attempting to fetch transcript for video {video_id}")
-    
-    # Try direct method first
     try:
         transcript = YouTubeTranscriptApi.get_transcript(video_id)
         text = " ".join([entry["text"] for entry in transcript])
-        print(f"✅ Successfully fetched transcript using direct method for {video_id}")
+        print(f"✅ Successfully fetched transcript for {video_id}")
         return text
     except Exception as e:
-        print(f"⚠️ Direct method failed for {video_id}, trying fallback method...")
-        
-        # Fallback to list_transcripts method
-        try:
-            transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
-            print(f"📝 Available transcripts for {video_id}:")
-            for transcript in transcript_list:
-                print(f"  - Language: {transcript.language_code}, Type: {'Auto-generated' if transcript.is_generated else 'Manual'}")
-            
-            transcript = transcript_list.find_transcript(['en'])
-            text = " ".join([entry["text"] for entry in transcript.fetch()])
-            print(f"✅ Successfully fetched English transcript using fallback method for {video_id}")
-            return text
-        except Exception as e2:
-            error_type = type(e2).__name__
-            print(f"❌ Error fetching transcript for {video_id}")
-            print(f"  Error type: {error_type}")
-            print(f"  Error message: {str(e2)}")
-            print(f"  Video URL: https://www.youtube.com/watch?v={video_id}")
-            return None
+        error_type = type(e).__name__
+        print(f"❌ Error fetching transcript for {video_id}")
+        print(f"  Error type: {error_type}")
+        print(f"  Error message: {str(e)}")
+        print(f"  Video URL: https://www.youtube.com/watch?v={video_id}")
+        return None
 
 def analyze_transcript(transcript):
     try:
