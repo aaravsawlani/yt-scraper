@@ -1,16 +1,14 @@
-from flask import Flask, render_template, request, jsonify, send_file, send_from_directory
+from flask import Flask, render_template, request, jsonify, send_file, send_from_directory, make_response
 import os
 from pathlib import Path
 import yt
 from datetime import datetime
+from io import BytesIO
 
 app = Flask(__name__)
 
-# Get the Downloads folder path
-downloads_path = str(Path.home() / "Downloads")
-
-# Ensure the downloads directory exists
-os.makedirs(downloads_path, exist_ok=True)
+# In-memory storage for PDFs
+pdf_storage = {}
 
 @app.route('/')
 def index():
@@ -46,13 +44,21 @@ def analyze():
 
         # Generate PDFs
         if results:
-            yt.save_to_pdf(keyword, results)
-            yt.create_action_plan(keyword, results)
-            
-            # Get PDF file paths
+            # Get PDF file names
             today_date = datetime.now().strftime("%Y-%m-%d")
             summary_pdf = f"YT_{keyword}_{today_date}.pdf"
             action_plan_pdf = f"ActionPlan_{keyword}_{today_date}.pdf"
+
+            # Generate and store PDFs in memory
+            summary_buffer = BytesIO()
+            action_plan_buffer = BytesIO()
+            
+            yt.save_to_pdf(keyword, results, summary_buffer)
+            yt.create_action_plan(keyword, results, action_plan_buffer)
+            
+            # Store PDF buffers in memory
+            pdf_storage[summary_pdf] = summary_buffer.getvalue()
+            pdf_storage[action_plan_pdf] = action_plan_buffer.getvalue()
             
             return jsonify({
                 'success': True,
@@ -70,10 +76,16 @@ def analyze():
 @app.route('/download/<filename>')
 def download(filename):
     try:
-        file_path = os.path.join(downloads_path, filename)
-        return send_file(file_path, as_attachment=True)
+        if filename in pdf_storage:
+            pdf_data = pdf_storage[filename]
+            response = make_response(pdf_data)
+            response.headers['Content-Type'] = 'application/pdf'
+            response.headers['Content-Disposition'] = f'attachment; filename={filename}'
+            return response
+        else:
+            return jsonify({'error': 'File not found'}), 404
     except Exception as e:
-        return jsonify({'error': str(e)}), 404
+        return jsonify({'error': str(e)}), 500
 
 # Add static file handling for Vercel
 @app.route('/<path:path>')

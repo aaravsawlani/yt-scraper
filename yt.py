@@ -6,6 +6,7 @@ from openai import OpenAI
 from fpdf import FPDF
 from datetime import datetime, timedelta
 from pathlib import Path
+from io import BytesIO
 
 load_dotenv("secrets.env")
 # 🔑 API KEYS (Replace with your actual API keys)
@@ -85,11 +86,7 @@ def analyze_transcript(transcript):
         return None
 
 # 📝 Step 4: Save results to a PDF
-def save_to_pdf(keyword, results):
-    today_date = datetime.now().strftime("%Y-%m-%d")
-    filename = f"YT_{keyword}_{today_date}.pdf"
-    file_path = os.path.join(downloads_path, filename)
-
+def save_to_pdf(keyword, results, buffer=None):
     pdf = FPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
     pdf.add_page()
@@ -112,10 +109,17 @@ def save_to_pdf(keyword, results):
         pdf.multi_cell(0, 6, remove_unsupported_chars(f"📄 Summary: {result['summary']}"))
         pdf.ln(8)  # Add some space between summaries
 
-    pdf.output(file_path, "F")  # Save file
-    print(f"\n✅ PDF saved to: {file_path}")
+    if buffer:
+        pdf.output(buffer, 'F')
+        buffer.seek(0)
+    else:
+        # Fallback to file system for local development
+        today_date = datetime.now().strftime("%Y-%m-%d")
+        filename = f"YT_{keyword}_{today_date}.pdf"
+        file_path = os.path.join(os.getcwd(), filename)
+        pdf.output(file_path, "F")
 
-def create_action_plan(keyword, results):
+def create_action_plan(keyword, results, buffer=None):
     if not results:
         print("\n❌ No results to create an action plan from.")
         return
@@ -157,11 +161,6 @@ def create_action_plan(keyword, results):
         
         action_plan = completion.choices[0].message.content
         
-        # Save action plan to a PDF file
-        today_date = datetime.now().strftime("%Y-%m-%d")
-        filename = f"ActionPlan_{keyword}_{today_date}.pdf"
-        file_path = os.path.join(downloads_path, filename)
-        
         # Create PDF
         pdf = FPDF()
         pdf.set_auto_page_break(auto=True, margin=15)
@@ -191,9 +190,16 @@ def create_action_plan(keyword, results):
             else:
                 pdf.multi_cell(0, 6, remove_unsupported_chars(line))
         
-        pdf.output(file_path, "F")  # Save file
+        if buffer:
+            pdf.output(buffer, 'F')
+            buffer.seek(0)
+        else:
+            # Fallback to file system for local development
+            today_date = datetime.now().strftime("%Y-%m-%d")
+            filename = f"ActionPlan_{keyword}_{today_date}.pdf"
+            file_path = os.path.join(os.getcwd(), filename)
+            pdf.output(file_path, "F")
         
-        print(f"\n✅ Action plan saved to: {file_path}")
         return action_plan
     
     except Exception as e:
