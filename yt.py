@@ -13,7 +13,11 @@ load_dotenv("secrets.env")
 YOUTUBE_API_KEY = os.getenv("YT_API_KEY")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 # Initialize OpenAI client
-client = OpenAI(api_key=OPENAI_API_KEY)
+client = OpenAI(
+    api_key=OPENAI_API_KEY,
+    default_headers={"Content-Type": "application/json"},
+    timeout=60.0
+)
 
 # Get the Downloads folder path
 downloads_path = str(Path.home() / "Downloads")
