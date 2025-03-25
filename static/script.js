@@ -45,26 +45,36 @@ document.addEventListener('DOMContentLoaded', function() {
             resultsDiv.classList.remove('d-none');
 
             if (data.videos && Array.isArray(data.videos)) {
-                // Display videos
-                data.videos.forEach(video => {
-                    const videoCard = document.createElement('div');
-                    videoCard.className = 'card video-card';
-                    
-                    videoCard.innerHTML = `
-                        <div class="card-header">
-                            <a href="https://www.youtube.com/watch?v=${video.video_id}" 
-                               target="_blank" 
-                               class="video-title">
-                                ${escapeHtml(video.title)}
-                            </a>
-                        </div>
-                        <div class="card-body">
-                            <div class="summary-text">${escapeHtml(video.summary)}</div>
-                        </div>
-                    `;
-                    
-                    videoResultsDiv.appendChild(videoCard);
-                });
+                // Only display videos if this is from history
+                // For live updates, we use the SSE handler
+                if (data.is_history) {
+                    data.videos.forEach(video => {
+                        const videoCard = document.createElement('div');
+                        videoCard.className = 'card video-card';
+                        
+                        videoCard.innerHTML = `
+                            <div class="card-header">
+                                <a href="https://www.youtube.com/watch?v=${video.video_id}" 
+                                   target="_blank" 
+                                   class="video-title">
+                                    ${escapeHtml(video.title)}
+                                </a>
+                            </div>
+                            <div class="card-body">
+                                <div class="summary-text">${escapeHtml(video.summary)}</div>
+                            </div>
+                        `;
+                        
+                        videoResultsDiv.appendChild(videoCard);
+                    });
+                }
+            }
+
+            // Clear previous results only for new searches and if it's not from SSE
+            if (!data.is_history && !data.type) {
+                liveResultsContent.innerHTML = '';
+                processedCount = 0;
+                document.getElementById('video-counter').style.display = 'none';
             }
         } catch (error) {
             errorDiv.textContent = error.message;
