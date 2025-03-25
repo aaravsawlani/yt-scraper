@@ -18,15 +18,15 @@ client = OpenAI(
 )
 
 # 🔍 Step 1: Search YouTube for videos based on a keyword
-def search_youtube(keyword, max_results=10):
+def search_youtube(keyword, max_results=10, order='relevance', max_age=500):
     url = "https://www.googleapis.com/youtube/v3/search"
     params = {
         "part": "snippet",
         "q": keyword,
         "type": "video",
         "maxResults": max_results,
-        "order": "relevance",  # Sort by relevance instead of views
-        "publishedAfter": (datetime.utcnow() - timedelta(days=500)).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "order": order,
+        "publishedAfter": (datetime.utcnow() - timedelta(days=max_age)).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "key": YOUTUBE_API_KEY
     }
 
