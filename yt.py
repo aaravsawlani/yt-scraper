@@ -40,10 +40,23 @@ def search_youtube(keyword, max_results=10):
 # 📜 Step 2: Fetch transcript for a given video ID
 def fetch_transcript(video_id):
     try:
-        transcript = YouTubeTranscriptApi.get_transcript(video_id)
-        return " ".join([entry["text"] for entry in transcript])
+        print(f"🔍 Attempting to fetch transcript for video {video_id}")
+        transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
+        print(f"📝 Available transcripts for {video_id}:")
+        for transcript in transcript_list:
+            print(f"  - Language: {transcript.language_code}, Type: {'Auto-generated' if transcript.is_generated else 'Manual'}")
+        
+        # Get English transcript
+        transcript = transcript_list.find_transcript(['en'])
+        text = " ".join([entry["text"] for entry in transcript.fetch()])
+        print(f"✅ Successfully fetched English transcript for {video_id}")
+        return text
     except Exception as e:
-        print(f"❌ No transcript for video {video_id}: {e}")
+        error_type = type(e).__name__
+        print(f"❌ Error fetching transcript for {video_id}")
+        print(f"  Error type: {error_type}")
+        print(f"  Error message: {str(e)}")
+        print(f"  Video URL: https://www.youtube.com/watch?v={video_id}")
         return None
 
 def analyze_transcript(transcript):
